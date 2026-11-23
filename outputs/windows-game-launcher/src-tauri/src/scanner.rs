@@ -1,7 +1,7 @@
 use crate::{
     db, grime, lock_db,
     model::{Game, UnlockEvent},
-    record_paths, runtime_environment, runtime_record, source, AppState,
+    pbz_save, record_paths, runtime_environment, runtime_record, source, AppState,
 };
 use tauri::{Emitter, Manager};
 
@@ -35,24 +35,49 @@ pub(crate) fn scan_one(
         }
     }
     let profile = crate::achievement_platform::for_game(&*lock_db(state)?, game)?;
-    let runtime_file = record_paths::runtime_file(
+    let mut runtime_file = record_paths::runtime_file(
         game,
         &profile,
         state.appdata.as_deref(),
         state.public.as_deref(),
     );
+    if runtime_file.is_none() && game.appid == pbz_save::APPID {
+        let save = pbz_save::discover(game)
+            .map_err(|error| format!("《影之刃零》存档读取失败：{error}"))
+            .and_then(|file| file.ok_or_else(|| "未找到《影之刃零》存档或本地解锁记录".into()));
+        match save {
+            Ok(file) => runtime_file = Some(file),
+            Err(status) => {
+                db::update_scan(&*lock_db(state)?, &game.id, &status, "")?;
+                return Ok(Vec::new());
+            }
+        }
+    }
     let (unlocks, file_name, status) = if let Some(file) = runtime_file {
         let file_name = file.to_string_lossy().into_owned();
-        let definitions = db::achievement_api_names(&*lock_db(state)?, &game.appid)?;
-        let require_match = !profile.steam_appid.is_empty() && profile.steam_appid != game.appid;
-        let items = match runtime_record::read(&file, &definitions, require_match) {
+        let (record, status) = if pbz_save::is_save(game, &file) {
+            (
+                pbz_save::read(game, &file)
+                    .map_err(|error| format!("《影之刃零》存档读取失败：{error}")),
+                "已读取《影之刃零》存档",
+            )
+        } else {
+            let definitions = db::achievement_api_names(&*lock_db(state)?, &game.appid)?;
+            let require_match =
+                !profile.steam_appid.is_empty() && profile.steam_appid != game.appid;
+            (
+                runtime_record::read(&file, &definitions, require_match),
+                "已读取本地记录",
+            )
+        };
+        let items = match record {
             Ok(items) => items,
             Err(error) => {
                 db::update_scan(&*lock_db(state)?, &game.id, &error, &file_name)?;
                 return Ok(Vec::new());
             }
         };
-        (items, file_name, "已读取本地记录")
+        (items, file_name, status)
     } else if game.appid == grime::APPID {
         let definitions = db::achievement_api_names(&*lock_db(state)?, &game.appid)?;
         match grime::read_saves(state.appdata.as_deref(), &definitions) {

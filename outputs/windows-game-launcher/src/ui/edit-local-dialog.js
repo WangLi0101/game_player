@@ -14,7 +14,10 @@ export function editLocalDialog(game, actions) {
   const platform = gamePlatformPicker(paths.exe, game.achievementPlatform, game.id);
   search.element.addEventListener('change', () => platform.setGame(search.appid, search.title));
   platform.setGame(search.appid, search.title);
-  const record = field('自定义解锁记录（可选）', game.customUnlockPath, 'achievements.json 或 achievements.ini 的完整路径'); browse(record, ['json', 'ini']);
+  const pbz = game.appid === '4115450';
+  const record = field('自定义解锁记录（可选）', game.customUnlockPath,
+    pbz ? '解锁记录或 PBZSaveGame.sav 的完整路径' : 'achievements.json 或 achievements.ini 的完整路径');
+  browse(record, pbz ? ['json', 'ini', 'sav'] : ['json', 'ini']);
   const local = el('label', 'setting-check'); const localOnly = el('input'); localOnly.type = 'checkbox'; localOnly.checked = !game.appid;
   local.append(localOnly, el('span', '', '跳过 Steam 资料关联（不获取 Steam 成就）'));
   if (localOnly.checked) search.setLocalOnly(true);

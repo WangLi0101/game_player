@@ -7,7 +7,7 @@ const messages = {
   unsupported:['当前版本无法自动检测','已检测到 Xbox/GDK 游戏文件，但未找到受支持的真实成就事件记录。Steam 成就资料不能替代这份游戏的成就机制，也不会根据游玩进度推断解锁。'],
   needs_appid:['先匹配 Steam AppID','AppID 用于匹配成就定义。填写正确的 AppID 后，再更新成就资料并检查记录。'],
   needs_definitions:['需要补全成就定义','成就名称、图标和完整列表尚未就绪，请点击更新资料。Steam 成就资料可直接获取；同步 Steam 账号解锁状态仍需在设置中填写 API Key 和 SteamID。'],
-  missing_record:['尚未找到真实解锁记录','请确认游戏或运行环境会实际写出成就记录。可以指定已有的受支持记录文件；游戏存档和成就定义不等于解锁记录。'],
+  missing_record:['尚未找到真实解锁记录','请确认游戏或运行环境会实际写出成就记录。可以手动选择解锁记录，或该游戏支持的存档。'],
   error:['记录暂时无法读取','请查看下方检查结果。解锁记录和成就定义是不同文件，不能把定义文件选作解锁记录。'],
 };
 
@@ -31,7 +31,11 @@ export function detectionGuide(game, actions) {
     if (!report.candidates.length) paths.append(el('p','form-hint','设置 AppID 后可自动查找常见目录，也可直接选择记录文件。'));
     const controls = el('div','guide-actions');
     controls.append(button('重新检测','primary',() => load(),'refresh'),button('选择记录文件','secondary',async () => {
-      const path = await chooseFile({multiple:false,filters:[{name:'成就解锁记录（JSON / INI）',extensions:['json','ini']}]});
+      const filters = [{name:'成就解锁记录（JSON / INI）',extensions:['json','ini']}];
+      if (game.appid === '4115450') {
+        filters.unshift({name:'《影之刃零》存档或成就解锁记录',extensions:['sav','json','ini']});
+      }
+      const path = await chooseFile({multiple:false,filters});
       if (path) await load('set_record_path',{gameId:game.id,path});
     },'folder'));
     if (game.customUnlockPath) controls.append(button('恢复自动查找','secondary',()=>load('set_record_path',{gameId:game.id,path:''}),'refresh'));

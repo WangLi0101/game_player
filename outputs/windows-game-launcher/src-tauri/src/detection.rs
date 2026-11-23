@@ -1,4 +1,4 @@
-use crate::{db, grime, lock_db, record_paths, scanner, AppState};
+use crate::{db, grime, lock_db, pbz_save, record_paths, scanner, AppState};
 use serde::Serialize;
 use tauri::Manager;
 
@@ -57,6 +57,15 @@ pub(crate) fn check_detection(app: tauri::AppHandle, game_id: String) -> Result<
                 exists: folder.is_dir(),
                 path: folder.to_string_lossy().into_owned(),
                 kind: "GRIME 存档",
+            });
+        }
+    }
+    if game.appid == pbz_save::APPID {
+        if let Some(folder) = pbz_save::save_folder(&game) {
+            candidates.push(Candidate {
+                exists: folder.is_dir(),
+                path: folder.to_string_lossy().into_owned(),
+                kind: "《影之刃零》存档目录",
             });
         }
     }

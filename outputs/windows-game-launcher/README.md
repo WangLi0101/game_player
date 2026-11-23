@@ -145,6 +145,8 @@ Release 说明来自 `release-notes/<版本号>.md`。发布前必须配置更�
 4. 本地游戏默认检查 `%APPDATA%\GSE Saves\<AppID>\achievements.json`、`%APPDATA%\Goldberg SteamEmu Saves\<AppID>\achievements.json`，以及 `%PUBLIC%\Documents\Steam\RUNE\<AppID>\achievements.ini`、`CODEX` 的同类目录。其他位置可在游戏详情页“编辑”中指定 JSON 或 INI 的完整路径。本地配置编号与已确认的资料 AppID 不同，可以用配置编号查找记录，但解锁标识必须与当前游戏定义匹配；不修改游戏配置。
 5. 若游戏目录下存在 `steam_settings\achievements.json`，它可作为成就定义的本地来源。这个文件通常是**定义数组**；实际解锁记录是保存目录中的**对象**，两者不能混用。
 
+本地《影之刃零》（Steam AppID `4115450`）在没有独立解锁记录时，会从游戏目录内的 `ProjectPBZ\Saved\SaveGames\Steam\<玩家编号>\PBZSaveGame.sav` 读取已解锁成就。有多个玩家存档时，可以在成就检测引导中选择自己的 `.sav`。读取需要与存档版本匹配的游戏程序，读取结果保存为游迹本地成就。
+
 后台每 3 秒检查本地记录。启动时导入已有解锁且不弹历史通知；新解锁会写入本机数据库并弹系统通知。Steam 官方成就每 30 分钟尝试同步一次，也可在详情页手动更新。网络失败时，已缓存的资料和成就仍可查看。
 
 Steam 成就定义优先通过官方 `IPlayerService/GetGameAchievements/v1` 获取简体中文名称、完整说明（含隐藏成就）和图标，无需 API Key 或登录；该接口失败时，有 API Key 才回退到原定义接口。响应缺少有效列表不视为“暂无成就”，空名称、说明或图标不覆盖已有完整资料。Steam 账号解锁状态继续使用 API Key 与 SteamID64 同步，本地游戏仍读取受支持的真实解锁记录。
