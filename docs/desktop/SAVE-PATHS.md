@@ -4,7 +4,7 @@
 https://github.com/mtkennerly/ludusavi-manifest
 
 原始数据下载于 2026-10-21，SHA-256 记录于 JSON 的 `sha256` 字段。
-上游 MIT 许可证完整保留在 `LUDUSAVI-LICENSE`。本快照含 12,194 款游戏、14,349 条路径模式，规则数量不代表每款游戏都能在所有版本上定位成功。
+上游 MIT 许可证完整保留在 [LUDUSAVI-LICENSE](../../src-tauri/data/LUDUSAVI-LICENSE)。本快照含 12,194 款游戏、14,349 条路径模式，规则数量不代表每款游戏都能在所有版本上定位成功。
 
 仅保留标记为 save、适用于 Windows、可由已知系统目录或安装目录解析的模式。
 不支持注册表存档、递归通配符、父目录跳转、未知占位符，也不实现完整 Ludusavi 备份格式。

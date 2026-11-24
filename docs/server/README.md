@@ -56,7 +56,7 @@ API 接收上传完成通知后将校验任务持久化到 Postgres 队列，由
 
 ## 容器配置
 
-[单机 Compose 说明](deploy/README.md) 包含 API、Postgres、独立 worker、显式迁移工具和可选 Caddy。默认不启动反代，不自动迁移，不暴露数据库端口；API 只发布宿主机回环 8090 端口。[环境变量示例](deploy/.env.example) 的凭据均为占位值。
+[单机 Compose 说明](deploy/README.md) 包含 API、Postgres、独立 worker、显式迁移工具和可选 Caddy。默认不启动反代，不自动迁移，不暴露数据库端口；API 只发布宿主机回环 8090 端口。[环境变量示例](../../server/deploy/.env.example) 的凭据均为占位值。
 
 这套配置仍需运行验收。本次只做本地 `docker compose config --quiet` 校验，没有构建镜像、部署或连接真实 OSS。构建上下文仅包含服务端及共享 Rust 库，不打包环境文件、桌面资料库或密钥。
 

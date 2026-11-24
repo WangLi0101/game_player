@@ -37,7 +37,7 @@ gh secret set TAURI_SIGNING_PRIVATE_KEY_PASSWORD --repo WangLi0101/game_player <
 
 ## 版本发布
 
-1. 统一 `package.json`、`Cargo.toml`、`Cargo.lock` 和 `tauri.conf.json` 中的应用版本，并新增 `release-notes/<版本号>.md`。中文说明不得为空，最多 256 KiB；此文件同时用于应用内与 GitHub Release。
+1. 统一 `package.json`、`src-tauri/Cargo.toml`、`src-tauri/Cargo.lock` 和 `src-tauri/tauri.conf.json` 中的应用版本，并新增 `docs/release-notes/<版本号>.md`。中文说明需要有内容，最多 256 KiB，供应用内和 GitHub Release 使用。
 2. 版本变更合入 main 后，现有工作流校验版本与签名配置，使用锁定的依赖构建 Windows x64 NSIS。
 3. `createUpdaterArtifacts=true` 生成 `.exe` 与对应 `.exe.sig`。安装包保持 ASCII 文件名 `youji_<版本>_x64-setup.exe`，签名文件同步命名。
 4. 发布脚本验证签名格式和可信注释内的版本，生成 `latest.json`，只包含 `windows-x86_64` 平台；发布脚本同时使用 Node 原生 Ed25519／BLAKE2b 验证安装包与可信版本注释，客户端下载与安装前还会重新验签。

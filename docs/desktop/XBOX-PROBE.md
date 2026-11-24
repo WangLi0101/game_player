@@ -6,7 +6,7 @@
 
 ## 构建
 
-在 Windows PowerShell 中执行 `./build.ps1`。输出为 `../resources/XboxLocalProbe.exe`，由 Tauri 作为资源打包。
+在 Windows PowerShell 中从仓库根目录执行 `./src-tauri/probe/build.ps1`。输出为 `src-tauri/resources/XboxLocalProbe.exe`，由 Tauri 作为资源打包。
 代码通过 Windows 自带的 .NET Framework 编译器构建，不需要下载第三方二进制。
 交叉构建 Tauri 前，应先在 Windows 构建此组件并复制到资源目录。
 

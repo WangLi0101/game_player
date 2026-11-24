@@ -34,7 +34,7 @@ pub(crate) fn initialize(app:&tauri::AppHandle,conn:&rusqlite::Connection)->Resu
     let cache_root=app.path().app_cache_dir().map_err(|e|e.to_string())?.join("app-updates");
     let public_key=app.config().plugins.0.get("updater").and_then(|v|v.get("pubkey")).and_then(serde_json::Value::as_str).unwrap_or("").to_string();
     let (supported,reason)=support();
-    let mut status=Status{supported,reason,current_version:app.package_info().version.to_string(),current_notes:include_str!(concat!("../../../release-notes/",env!("CARGO_PKG_VERSION"),".md")).into(),auto_check:crate::db::setting(conn,"check_updates_on_startup")?!="false",phase:"idle".into(),..Default::default()};
+    let mut status=Status{supported,reason,current_version:app.package_info().version.to_string(),current_notes:include_str!(concat!("../../../docs/release-notes/",env!("CARGO_PKG_VERSION"),".md")).into(),auto_check:crate::db::setting(conn,"check_updates_on_startup")?!="false",phase:"idle".into(),..Default::default()};
     match cache::metadata(&cache_root){Ok(Some(cached))=>{let newer=semver::Version::parse(&cached.identity.version).ok().zip(semver::Version::parse(&status.current_version).ok()).is_some_and(|(cached,current)|cached>current);
         if newer{status.cache_version=cached.identity.version;if supported{status.phase="cached".into();}}},Err(e)=>status.error=e,Ok(None)=>{}}
     match cache::attempt(&cache_root){Ok(Some(attempt))=>{

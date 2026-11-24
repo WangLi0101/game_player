@@ -2,9 +2,9 @@
 
 ## 新会话先读
 
-1. `PROJECT-HANDOFF.md`：项目位置、最近完成的修复、实机验证结果与剩余验证。
-2. `HANDHELD-OPERATIONS.md`：掌机 SSH、文件传输、远程启动、构建、更新和卸载。
-3. `README.md` 与 `XBOX-ACHIEVEMENTS.md`：功能说明和成就来源边界。
+1. `docs/PROJECT-HANDOFF.md` 记录项目位置、实机验证结果与待办。
+2. `docs/HANDHELD-OPERATIONS.md` 记录掌机 SSH、文件传输、远程启动、构建、更新和卸载。
+3. `README.md` 介绍应用功能，`docs/desktop/XBOX-ACHIEVEMENTS.md` 说明成就来源和边界。
 
 ## 目录约定
 

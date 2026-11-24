@@ -1,6 +1,14 @@
 # 影视协作接口与实现约定
 
-使用说明见 [README](../../../README.md#影视库)，领域术语见 [CONTEXT](../../../CONTEXT.md)。本文件记录需要跨模块保持的接口与不变量；SQL 类型、默认值和索引以 [store.rs](store.rs)、`people.rs` 与 `metadata/retry.rs` 的初始化为准。
+本文件记录领域术语和跨模块接口约定。SQL 类型、默认值和索引以 [store.rs](../../src-tauri/src/media/store.rs)、`people.rs` 与 `metadata/retry.rs` 的初始化为准。使用说明见 [README](../../README.md#影视库)。
+
+## 领域术语
+
+- 影视条目可表示电影、剧、季、集或尚未识别的作品。条目可独立于联网资料和本地文件存在。
+- 媒体来源是用户添加的目录及其扫描范围。本地资源是其中实际存在的可播放文件或目录。同一条目可关联多个资源版本。
+- 外部编号由资料来源、对象类型和编号共同确定。资料对应确认不同来源描述同一作品，资源关联确认本地文件属于哪个条目或分集。
+- 观看状态是条目的个人已看标记，播放进度按资源版本保存。豆瓣记录导入已看标记、个人评分、标记日期、标签和短评。
+- 收藏是个人星标，收藏夹是用户命名的作品清单。智能文件夹将可归入单部电影、剧或季的目录展示为影视卡片，实际文件位置保持原样。
 
 ## 状态、维护与数据范围
 
@@ -10,7 +18,7 @@
 
 秘密使用 `credential(dir,name)` / `save_credential(dir,name,value)`，Windows Credential Manager 中按应用目录分隔；snapshot/settings 仅返回存在标记。`name` 为 `tmdbApiKey` 或 `tmdbReadAccessToken`。
 
-影视采用当前固定 schema，不迁移开发版数据库。影视库暂不参与应用数据备份与恢复；游戏 v3 备份恢复不读取或覆盖影视库、观看记录及登录资料，不支持开发期 v4 影视备份。游戏备份范围见 [备份格式](../../../BACKUP-FORMAT.md)。评分沿用 1–5 星，进度和时长保留浮点秒。资源目录不能互相包含，避免同一文件在两个启用来源之间反复归属。
+影视采用当前固定 schema，不迁移开发版数据库。影视库暂不参与应用数据备份与恢复；游戏 v3 备份恢复不读取或覆盖影视库、观看记录及登录资料，不支持开发期 v4 影视备份。游戏备份范围见 [备份格式](../BACKUP-FORMAT.md)。评分沿用 1–5 星，进度和时长保留浮点秒。资源目录不能互相包含，避免同一文件在两个启用来源之间反复归属。
 
 ## 数据表与设置
 
@@ -188,4 +196,4 @@ PotPlayer 优先使用启动参数 `/seek=HH:MM:SS.mmm`。至少两次有效就�
 
 前端示例资料为 `src/lib/media-preview-metadata.json` 与 `media-preview-presentation.json`；`test/media-design-preview.html` 检查多季、离线集与多版本播放参数，`test/media-player-preview.html` 检查播放状态。预览不读取本机凭据、不启动真实播放器。
 
-浏览器回归集中在 `test/media-*.browser.cjs` 与 `test/tray-menu.browser.cjs`，使用示例数据覆盖渲染复用、十万人员搜索、目录返回、截图、豆瓣预览、单季匹配、清理和托盘。启动预览及 Playwright／Edge 配置见 [README 验证](../../../README.md#验证)。Rust 的真实文件通知及抽帧用例只使用临时目录／合成视频；真实库、真实播放器与桌面焦点验收结果分别记录在 [项目交接](../../../PROJECT-HANDOFF.md)。
+浏览器回归集中在 `test/media-*.browser.cjs` 与 `test/tray-menu.browser.cjs`，使用示例数据覆盖渲染复用、十万人员搜索、目录返回、截图、豆瓣预览、单季匹配、清理和托盘。启动预览及 Playwright／Edge 配置见 [README 验证](../../README.md#验证)。Rust 的真实文件通知及抽帧用例只使用临时目录／合成视频；真实库、真实播放器与桌面焦点验收结果分别记录在 [项目交接](../PROJECT-HANDOFF.md)。

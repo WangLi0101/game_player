@@ -19,12 +19,12 @@ Must-Fail { New-UpdateManifest '1.1.0' '中文说明' '' $repository 'youji_1.1.
 Must-Fail { New-UpdateManifest '1.1.0' '中文说明' $fixture.signature $repository 'youji_1.2.0_x64-setup.exe' }
 $temp = Join-Path ([IO.Path]::GetTempPath()) ('youji-release-' + [guid]::NewGuid())
 try {
-  [IO.Directory]::CreateDirectory((Join-Path $temp 'release-notes')) | Out-Null
+  [IO.Directory]::CreateDirectory((Join-Path $temp 'docs/release-notes')) | Out-Null
   [IO.Directory]::CreateDirectory((Join-Path $temp 'src-tauri')) | Out-Null
   [IO.Directory]::CreateDirectory((Join-Path $temp 'bundle')) | Out-Null
   [IO.File]::WriteAllText((Join-Path $temp 'src-tauri/tauri.conf.json'), (@{version='1.1.0';plugins=@{updater=@{pubkey=$fixture.publicKey}}} | ConvertTo-Json -Depth 5))
   Must-Fail { Read-ReleaseNotes $temp '1.1.0' }
-  [IO.File]::WriteAllText((Join-Path $temp 'release-notes/1.1.0.md'), '中文说明')
+  [IO.File]::WriteAllText((Join-Path $temp 'docs/release-notes/1.1.0.md'), '中文说明')
   [IO.File]::WriteAllBytes((Join-Path $temp 'bundle/test.exe'), [Convert]::FromBase64String($fixture.payload))
   Must-Fail { Prepare-UpdateRelease $temp (Join-Path $temp 'bundle') (Join-Path $temp 'output') $repository }
   [IO.File]::WriteAllText((Join-Path $temp 'bundle/test.exe.sig'), $fixture.signature)

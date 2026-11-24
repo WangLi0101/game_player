@@ -7,7 +7,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 function Read-ReleaseNotes([string]$Project, [string]$Version) {
-  $path = Join-Path $Project "release-notes/$Version.md"
+  $path = Join-Path $Project "docs/release-notes/$Version.md"
   if (!(Test-Path -LiteralPath $path -PathType Leaf)) { throw "缺少版本 $Version 的中文发布说明。" }
   $notes = [IO.File]::ReadAllText((Resolve-Path -LiteralPath $path)).Trim()
   if ([string]::IsNullOrWhiteSpace($notes) -or [Text.Encoding]::UTF8.GetByteCount($notes) -gt 262144) { throw '更新说明为空或超过 256 KiB。' }

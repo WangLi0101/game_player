@@ -179,7 +179,7 @@ tar -C "$LAUNCHER_ROOT" \
   --exclude='.env' --exclude='.env.*' \
   -cf - package.json pnpm-lock.yaml tsconfig.json vite.config.js \
   index.html tray-menu.html achievement-overlay.html public src src-tauri \
-  cloud-protocol save-archive release-notes \
+  cloud-protocol save-archive docs/release-notes \
   | docker exec -i "codex-launcher-windows-t9" tar -xf - -C /app
 
 docker exec "codex-launcher-windows-t9" pnpm install --frozen-lockfile
@@ -248,7 +248,7 @@ PS
 
 数据库使用 SQLite，运行时可能有 `games.sqlite-wal` 和 `games.sqlite-shm`。直接下载一个运行中的主文件可能漏掉最近写入；一致备份优先正常退出后复制整个应用数据目录，或使用 SQLite 的备份机制。历史诊断副本不能替代掌机实时数据库。
 
-具体游戏、最近验证的结果与边界见 `PROJECT-HANDOFF.md`；通用成就机制见源码 `README.md` 和 `XBOX-ACHIEVEMENTS.md`。
+实机验证结果见 [项目交接](PROJECT-HANDOFF.md)。成就机制见 [应用说明](../README.md) 和 [Xbox 成就](desktop/XBOX-ACHIEVEMENTS.md)。
 
 ## 8. 卸载说明（仅在用户明确要求时）
 
