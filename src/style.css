@@ -95,9 +95,6 @@ h1,h2,h3,p {
   text-overflow:ellipsis;
   white-space:nowrap;
 }
-.breadcrumb-slash {
-  opacity:.45;
-}
 .topbar-actions {
   display:flex;
   align-items:center;

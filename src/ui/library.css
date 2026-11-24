@@ -202,13 +202,3 @@
 .game-list .card-open {
   display:none;
 }
-.page-footer {
-  display:flex;
-  justify-content:space-between;
-  border-top:1px solid var(--line);
-  padding-top:20px;
-  margin-top:40px;
-  color:var(--muted);
-  font-size:9px;
-  letter-spacing:1px;
-}

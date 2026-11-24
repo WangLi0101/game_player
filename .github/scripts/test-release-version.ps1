@@ -1,19 +1,18 @@
 $ErrorActionPreference = 'Stop'
 $testRoot = Join-Path ([IO.Path]::GetTempPath()) "youji-release-tests-$([guid]::NewGuid())"
-$project = Join-Path $testRoot 'outputs/windows-game-launcher'
-New-Item -ItemType Directory -Path (Join-Path $project 'src-tauri') -Force | Out-Null
+$project = $testRoot
+$previousProject = Join-Path $testRoot 'outputs/windows-game-launcher'
 $check = Join-Path $PSScriptRoot 'check-release-version.ps1'
 $detect = Join-Path $PSScriptRoot 'detect-release-version.ps1'
 
-function Write-Version([string]$version) {
-    "{`"version`":`"$version`"}" | Set-Content (Join-Path $project 'package.json')
-    "{`"version`":`"$version`",`"packages`":{`"`":{`"version`":`"$version`"}}}" |
-        Set-Content (Join-Path $project 'package-lock.json')
-    "{`"version`":`"$version`"}" | Set-Content (Join-Path $project 'src-tauri/tauri.conf.json')
+function Write-Version([string]$version, [string]$directory = $project) {
+    New-Item -ItemType Directory -Path (Join-Path $directory 'src-tauri') -Force | Out-Null
+    "{`"version`":`"$version`"}" | Set-Content (Join-Path $directory 'package.json')
+    "{`"version`":`"$version`"}" | Set-Content (Join-Path $directory 'src-tauri/tauri.conf.json')
     "[package]`nname = `"local_achievement_launcher`"`nversion = `"$version`"" |
-        Set-Content (Join-Path $project 'src-tauri/Cargo.toml')
+        Set-Content (Join-Path $directory 'src-tauri/Cargo.toml')
     "[[package]]`nname = `"local_achievement_launcher`"`nversion = `"$version`"" |
-        Set-Content (Join-Path $project 'src-tauri/Cargo.lock')
+        Set-Content (Join-Path $directory 'src-tauri/Cargo.lock')
 }
 function Git-Test {
     $arguments = @($args)
@@ -27,11 +26,14 @@ function Assert-Throws([scriptblock]$action, [string]$message) {
 }
 
 try {
+    Write-Version '0.2.1' $previousProject
     Git-Test @('init', '--quiet') | Out-Null
-    Write-Version '0.2.1'
     Git-Test @('add', '.') | Out-Null
     Git-Test @('-c', 'user.name=Release Test', '-c', 'user.email=release-test@example.invalid', 'commit', '--quiet', '-m', 'before') | Out-Null
     $before = Git-Test @('rev-parse', 'HEAD')
+    Get-ChildItem -LiteralPath $previousProject | Move-Item -Destination $project
+    $moved = & $detect -Before $before -ProjectPath $project -OutputPath ''
+    if ($moved.Changed) { throw '仅迁移源码路径不应触发发布' }
     Write-Version '0.2.2'
     Git-Test @('add', '.') | Out-Null
     Git-Test @('-c', 'user.name=Release Test', '-c', 'user.email=release-test@example.invalid', 'commit', '--quiet', '-m', 'version bump') | Out-Null
@@ -59,7 +61,7 @@ if (Test-Path variable:LASTEXITCODE) { exit $LASTEXITCODE }
     $retry = & $detect -Before $before -ProjectPath $project -OutputPath ''
     if (-not $retry.Changed) { throw '原事件重试应保留发布判定' }
 
-    foreach ($relative in @('package.json', 'package-lock.json', 'src-tauri/Cargo.toml', 'src-tauri/Cargo.lock', 'src-tauri/tauri.conf.json')) {
+    foreach ($relative in @('package.json', 'src-tauri/Cargo.toml', 'src-tauri/Cargo.lock', 'src-tauri/tauri.conf.json')) {
         $path = Join-Path $project $relative
         $original = Get-Content -LiteralPath $path -Raw
         $original.Replace('0.2.2', '0.2.3') | Set-Content -LiteralPath $path
@@ -75,7 +77,7 @@ if (Test-Path variable:LASTEXITCODE) { exit $LASTEXITCODE }
     Write-Version '0.2.3'
     Git-Test @('tag', 'v0.2.3', $before) | Out-Null
     Assert-Throws { & $detect -Before $before -ProjectPath $project -OutputPath '' } '已有标签指向其他提交'
-    Write-Host '版本检测、重试、五处一致性、标签冲突与预发布校验通过。'
+    Write-Host '路径迁移、版本检测、重试、四处一致性、标签冲突与预发布校验通过。'
 } finally {
     $resolvedRoot = [IO.Path]::GetFullPath($testRoot)
     $tempBase = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd([IO.Path]::DirectorySeparatorChar)

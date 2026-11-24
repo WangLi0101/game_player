@@ -2,7 +2,7 @@ param(
     [Parameter(Mandatory = $true)]
     [ValidatePattern('^[0-9a-f]{40}$')]
     [string]$Before,
-    [string]$ProjectPath = (Join-Path $PSScriptRoot '../../outputs/windows-game-launcher'),
+    [string]$ProjectPath = (Join-Path $PSScriptRoot '../..'),
     [string]$OutputPath = $env:GITHUB_OUTPUT
 )
 
@@ -10,7 +10,11 @@ $ErrorActionPreference = 'Stop'
 $version = & (Join-Path $PSScriptRoot 'check-release-version.ps1') -ProjectPath $ProjectPath
 $previousVersion = $null
 if ($Before -ne ('0' * 40)) {
-    $previous = git -C $ProjectPath show "${Before}:outputs/windows-game-launcher/src-tauri/tauri.conf.json"
+    $previous = git -C $ProjectPath show "${Before}:src-tauri/tauri.conf.json" 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        # 首次迁移目录和重跑该次推送时，原提交仍使用旧路径。
+        $previous = git -C $ProjectPath show "${Before}:outputs/windows-game-launcher/src-tauri/tauri.conf.json" 2>$null
+    }
     if ($LASTEXITCODE -ne 0) { throw '无法读取 main 推送前的应用版本，停止自动发布。' }
     $previousVersion = ($previous -join "`n" | ConvertFrom-Json).version
     if (-not $previousVersion) { throw 'main 推送前的应用版本不存在，停止自动发布。' }

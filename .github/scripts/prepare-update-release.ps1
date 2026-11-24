@@ -1,5 +1,5 @@
 param(
-  [string]$ProjectDirectory = 'outputs/windows-game-launcher',
+  [string]$ProjectDirectory = (Join-Path $PSScriptRoot '../..'),
   [string]$BundleDirectory,
   [string]$OutputDirectory,
   [string]$Repository = $env:GITHUB_REPOSITORY

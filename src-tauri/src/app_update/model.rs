@@ -19,7 +19,7 @@ impl Identity {
         if !version.pre.is_empty() || version<=current {return Err("更新不是较新的正式版本".into());}
         let url=reqwest::Url::parse(&self.url).map_err(|_|"更新地址无效")?;
         if url.scheme()!="https" || url.host_str()!=Some("github.com") || !url.username().is_empty() || url.password().is_some()
-            || !url.path().starts_with("/Libra11/windows-game-launcher/releases/download/") || !url.path().ends_with("_x64-setup.exe")
+            || !url.path().starts_with("/WangLi0101/game_player/releases/download/") || !url.path().ends_with("_x64-setup.exe")
             || url.query().is_some() || url.fragment().is_some()
         {return Err("更新包地址不属于游迹正式发布源".into());}
         super::cache::signature(&self.signature)?;Ok(())

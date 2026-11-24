@@ -29,7 +29,7 @@ test('初始化读取不能覆盖先到的实时状态，取消使用当前操�
 });
 
 test('发布验签绑定安装包和可信版本注释，拒绝篡改与版本错配',async()=>{
-  const {readFileSync}=await import('node:fs');const {verifyUpdateSignature}=await import('../../../.github/scripts/verify-update-signature.mjs');
+  const {readFileSync}=await import('node:fs');const {verifyUpdateSignature}=await import('../.github/scripts/verify-update-signature.mjs');
   const fixture=JSON.parse(readFileSync(new URL('../src-tauri/src/app_update/fixtures/signed.json',import.meta.url),'utf8'));
   const bytes=Buffer.from(fixture.payload,'base64');verifyUpdateSignature(bytes,fixture.signature,fixture.publicKey,'1.1.0');
   assert.throws(()=>verifyUpdateSignature(Buffer.concat([bytes,Buffer.from('tampered')]),fixture.signature,fixture.publicKey,'1.1.0'));

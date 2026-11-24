@@ -19,7 +19,8 @@ import { createViewMotion } from './ui/motion.js';
 import { bigScreenView } from './ui/big-screen.js';
 import { createBigScreenMode } from './ui/big-screen-mode.js';
 import { mountSidebar } from './ui/sidebar.js';
-import { el, button, icon } from './lib/dom.js';
+import { el, icon } from './lib/dom.js';
+import { mountAppShell } from './app-shell.tsx';
 import { command, chooseFile, onAppUpdateProgress, onUnlock, onLibraryChange, onLauncherError, preview } from './lib/bridge.js';
 import { createMediaController } from './ui/media/index.js';
 import { inCategory, queryGames, bigScreenCategories } from './lib/library-query.js';
@@ -53,18 +54,14 @@ const animateView = createViewMotion();
 const retainArtworkView = createArtworkRetainer();
 const cachedLibraryView = createLibraryViewCache();
 const app = document.querySelector('#app');
-app.innerHTML = `
-  <aside class="sidebar"></aside>
-  <main class="main">
-    <header class="topbar"><div class="breadcrumb"><span>收藏室</span><span class="breadcrumb-slash">/</span><strong id="page-name">游戏库</strong>${preview ? '<span class="preview-badge">示例预览</span>' : ''}</div><div class="topbar-tools"><div class="topbar-actions"><label class="search-box" id="search-box"><input id="search" type="search" placeholder="搜索你的游戏" aria-label="搜索游戏"></label><div id="add-action"></div></div><div id="header-display-action"></div></div></header>
-    <div class="page-intro" id="page-intro"><div><div class="eyebrow">属于你的游戏时光</div><h1>游戏库<span class="title-dot">.</span></h1></div><p>每一次打开，都有新的期待。</p></div>
-    <section id="content" aria-label="游戏库内容"></section>
-    <footer class="page-footer"><span>让热爱，有迹可循。</span><span>游迹</span></footer>
-  </main>
-  <div id="big-screen-host" hidden></div>
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>`;
 const $ = selector => document.querySelector(selector);
-$('#search-box').prepend(icon('search'));
+const updateShell = mountAppShell(app, {
+  preview,
+  onSearch: searchGames,
+  onAdd: () => actions.add(),
+  onEnterBigScreen: () => bigMode.enter(),
+});
+$('#big-screen-host').hidden = true;
 let toastTimer;
 function toast(message, error = false) {
   const node = $('#toast'); node.replaceChildren(icon(error ? 'info' : 'check'), el('span', '', message));
@@ -277,16 +274,12 @@ function domainSidebar() {
   else media().mountSidebar($('.sidebar'),{onDomainChange:setDomain,onSettings:()=>actions.settings(),preview});
   sidebarDomain=state.domain;
 }
-$('#add-action').append(button('添加游戏', 'primary add-button', actions.add, 'plus'));
-const displayMode=button('','header-icon-button',bigMode.enter,'screen');
-displayMode.id='big-screen-entry';displayMode.title='大屏模式';displayMode.setAttribute('aria-label','大屏模式');
-$('#header-display-action').append(displayMode);
 let searchFrame;
-$('#search').oninput = event => {
-  clearOrganizationSelection(state);selectionVersion++;state.page='library';state.search=event.target.value;state.selectedId='';
+function searchGames(value) {
+  clearOrganizationSelection(state);selectionVersion++;state.page='library';state.search=value;state.selectedId='';
   cancelAnimationFrame(searchFrame);
   searchFrame=requestAnimationFrame(()=>render());
-};
+}
 function render(preferredFocus) {
   collectionDrag.reconcile();
   gameContextMenu.reconcile();
@@ -300,11 +293,11 @@ function render(preferredFocus) {
   mediaController?.setActive?.(mediaVisible);
   if(state.page!=='social'&&socialPage){socialPage.dispose();socialPage=null;}
   app.classList.toggle('media-active',mediaVisible);
-  $('.topbar').hidden=mediaVisible;
   if(mediaVisible){
-    $('#page-intro').hidden=true;$('#big-screen-host').hidden=true;
+    updateShell({ mediaVisible: true, showIntro: false, contentLabel: '影视库内容' });
+    $('#big-screen-host').hidden=true;
     app.classList.remove('statistics-active','settings-active');
-    const content=$('#content');content.setAttribute('aria-label','影视库内容');
+    const content=$('#content');
     if(content.firstElementChild!==media().element)content.replaceChildren(media().element);
     if(settingsPage){settingsPage.dispose();settingsPage=null;}
     return;
@@ -353,10 +346,13 @@ function render(preferredFocus) {
   if (!game) state.selectedId = '';
   app.classList.toggle('statistics-active',state.page==='statistics'&&!game);
   app.classList.toggle('settings-active',state.page==='settings'&&!game);
-  $('#page-name').textContent = game ? game.title : state.page==='social' ? '好友与空间' : state.page==='statistics' ? '游戏统计' : state.page==='settings'?'设置':state.page==='online-search'?'在线搜索':'游戏库';
-  $('#page-intro').hidden = !!game || state.page!=='library';
-  $('.topbar-actions').hidden=state.page!=='library' && !game;
-  content.setAttribute('aria-label',state.page==='settings'&&!game?'设置内容':state.page==='statistics' && !game ? '游戏统计内容' : state.page==='online-search'&&!game?'在线搜索内容':'游戏库内容');
+  updateShell({
+    mediaVisible: false,
+    pageName: game ? game.title : state.page==='social' ? '好友与空间' : state.page==='statistics' ? '游戏统计' : state.page==='settings' ? '设置' : state.page==='online-search' ? '在线搜索' : '游戏库',
+    showIntro: !game && state.page==='library',
+    showGameActions: state.page==='library' || !!game,
+    contentLabel: state.page==='settings' && !game ? '设置内容' : state.page==='statistics' && !game ? '游戏统计内容' : state.page==='online-search' && !game ? '在线搜索内容' : '游戏库内容',
+  });
   const next = retainArtworkView(content,'desktop',!game&&state.page==='library',()=>game?detailView(game,state.achievements,state.achievementFilter,actions):state.page==='social'?socialPage.element:state.page==='settings'?settingsPage.element:state.page==='online-search'?onlineSearchPage.element:state.page==='statistics'?statisticsView(statistics,actions):cachedLibraryView('desktop',state,()=>libraryView(state,actions)));
   // 设置页保留表单节点，后台游戏库刷新不会覆盖用户正在输入的内容。
   if(content.firstElementChild!==next)content.replaceChildren(next);

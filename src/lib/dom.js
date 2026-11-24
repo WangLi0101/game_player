@@ -62,6 +62,9 @@ const paths = {
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10h.01"/>',
   chevron: '<path d="m9 5 7 7-7 7"/>',
 };
+export function iconPath(name) {
+  return paths[name] || paths.game;
+}
 export function icon(name, className = '') {
   const node = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   node.setAttribute('viewBox', '0 0 24 24');
@@ -72,7 +75,7 @@ export function icon(name, className = '') {
   node.setAttribute('stroke-linecap', 'round');
   node.setAttribute('stroke-linejoin', 'round');
   node.setAttribute('aria-hidden', 'true');
-  node.innerHTML = paths[name] || paths.game;
+  node.innerHTML = iconPath(name);
   return node;
 }
 export function button(text, className, onClick, glyph) {

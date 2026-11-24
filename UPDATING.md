@@ -21,7 +21,7 @@
 - 密码：`/Users/libra/.local/share/youji-release-signing/password.txt`
 - 公钥：`/Users/libra/.local/share/youji-release-signing/updater.key.pub`，已写入 Tauri 配置。
 
-在仓库的 Settings → Secrets and variables → Actions 配置：
+在 `WangLi0101/game_player` 的 Settings → Secrets and variables → Actions 配置以下 Secrets。
 
 - `TAURI_SIGNING_PRIVATE_KEY`：私钥文件完整内容。
 - `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`：密码文件完整内容。
@@ -29,21 +29,23 @@
 也可在已登录且有仓库权限的终端手动执行以下命令；它们从文件读取，不将值打印到终端：
 
 ```sh
-gh secret set TAURI_SIGNING_PRIVATE_KEY --repo Libra11/windows-game-launcher < "$HOME/.local/share/youji-release-signing/updater.key"
-gh secret set TAURI_SIGNING_PRIVATE_KEY_PASSWORD --repo Libra11/windows-game-launcher < "$HOME/.local/share/youji-release-signing/password.txt"
+gh secret set TAURI_SIGNING_PRIVATE_KEY --repo WangLi0101/game_player < "$HOME/.local/share/youji-release-signing/updater.key"
+gh secret set TAURI_SIGNING_PRIVATE_KEY_PASSWORD --repo WangLi0101/game_player < "$HOME/.local/share/youji-release-signing/password.txt"
 ```
 
 本轮没有替用户上传 Secrets。缺少任一项时工作流明确失败，不发布未签名安装包。单独保护并备份私钥及密码；不要提交、发到公开服务或替换现有签名公钥。丢失原私钥后无法给已安装的客户端提供同公钥签名的更新。
 
 ## 版本发布
 
-1. 统一五处应用版本配置，并新增 `release-notes/<版本号>.md`。中文说明不得为空，最多 256 KiB；此文件同时用于应用内与 GitHub Release。
+1. 统一 `package.json`、`Cargo.toml`、`Cargo.lock` 和 `tauri.conf.json` 中的应用版本，并新增 `release-notes/<版本号>.md`。中文说明不得为空，最多 256 KiB；此文件同时用于应用内与 GitHub Release。
 2. 版本变更合入 main 后，现有工作流校验版本与签名配置，使用锁定的依赖构建 Windows x64 NSIS。
 3. `createUpdaterArtifacts=true` 生成 `.exe` 与对应 `.exe.sig`。安装包保持 ASCII 文件名 `youji_<版本>_x64-setup.exe`，签名文件同步命名。
 4. 发布脚本验证签名格式和可信注释内的版本，生成 `latest.json`，只包含 `windows-x86_64` 平台；发布脚本同时使用 Node 原生 Ed25519／BLAKE2b 验证安装包与可信版本注释，客户端下载与安装前还会重新验签。
 5. 所有产物先上传草稿 Release，再公开发布。正式版标记 latest，预发布不成为 latest；已公开版本不覆盖，同名标签不得移到另一个提交。
 
-固定检查入口：`https://github.com/Libra11/windows-game-launcher/releases/latest/download/latest.json`。只接受游迹仓库内 HTTPS NSIS 下载地址，重定向必须保持 HTTPS。使用内置公钥，开启 `requireSignedVersion`；不能关闭 TLS 或签名校验。
+应用从 `https://github.com/WangLi0101/game_player/releases/latest/download/latest.json` 检查更新，只接受同一仓库内的 HTTPS NSIS 下载地址。重定向必须保持 HTTPS。客户端使用内置公钥并启用 `requireSignedVersion`，始终执行 TLS 和签名校验。
+
+此前发布的安装版使用原先内置的更新地址。从新仓库发布首个正式版后，现有用户需手动安装一次，后续便可从应用内检查新仓库的更新。
 
 当前依赖为 `tauri-plugin-updater=2.13.2`。独立启用该插件使用的 reqwest 0.13 SOCKS 功能，遵循现有系统／直连／自定义 HTTP 或 SOCKS5 代理。检查超时二十秒，连接十秒；下载独立设置三十分钟总超时及三十秒读取超时。代理变化用于下一次操作，不切换正在下载的连接。
 

@@ -4,9 +4,9 @@
   "version": "0.2.21",
   "identifier": "dev.local.achievementlauncher",
   "build": {
-    "beforeDevCommand": "npm run dev",
+    "beforeDevCommand": "pnpm run dev",
     "devUrl": "http://127.0.0.1:1420",
-    "beforeBuildCommand": "npm run build",
+    "beforeBuildCommand": "pnpm run build",
     "frontendDist": "../dist"
   },
   "app": {
@@ -60,7 +60,7 @@
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDkzRkIyMjRCQjdCOTBFM0QKUldROURybTNTeUw3azE0YVZsMnAxNkNkVWFRdTJlOTdSYmdQZFZLcjUyT0J4OHBrcjgxbENKaisK",
       "endpoints": [
-        "https://github.com/Libra11/windows-game-launcher/releases/latest/download/latest.json"
+        "https://github.com/WangLi0101/game_player/releases/latest/download/latest.json"
       ],
       "windows": {
         "installMode": "passive"

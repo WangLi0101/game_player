@@ -188,4 +188,4 @@ PotPlayer 优先使用启动参数 `/seek=HH:MM:SS.mmm`。至少两次有效就�
 
 前端示例资料为 `src/lib/media-preview-metadata.json` 与 `media-preview-presentation.json`；`test/media-design-preview.html` 检查多季、离线集与多版本播放参数，`test/media-player-preview.html` 检查播放状态。预览不读取本机凭据、不启动真实播放器。
 
-浏览器回归集中在 `test/media-*.browser.cjs` 与 `test/tray-menu.browser.cjs`，使用示例数据覆盖渲染复用、十万人员搜索、目录返回、截图、豆瓣预览、单季匹配、清理和托盘。启动预览及 Playwright／Edge 配置见 [README 验证](../../../README.md#验证)。Rust 的真实文件通知及抽帧用例只使用临时目录／合成视频；真实库、真实播放器与桌面焦点验收结果分别记录在 [项目交接](../../../../../PROJECT-HANDOFF.md)。
+浏览器回归集中在 `test/media-*.browser.cjs` 与 `test/tray-menu.browser.cjs`，使用示例数据覆盖渲染复用、十万人员搜索、目录返回、截图、豆瓣预览、单季匹配、清理和托盘。启动预览及 Playwright／Edge 配置见 [README 验证](../../../README.md#验证)。Rust 的真实文件通知及抽帧用例只使用临时目录／合成视频；真实库、真实播放器与桌面焦点验收结果分别记录在 [项目交接](../../../PROJECT-HANDOFF.md)。

@@ -20,7 +20,7 @@ API 仅映射宿主机 `127.0.0.1:8090`（端口可配置）；数据库与 work
 
 ## 配置与静态验证
 
-以下命令均以实际源码根目录 `outputs/windows-game-launcher/` 为工作目录。复制 `server/deploy/.env.example` 为同目录 `.env`，替换全部占位值；局部 `.gitignore` 已排除真实环境文件。
+以下命令均从仓库根目录运行。复制 `server/deploy/.env.example` 为同目录 `.env`，替换全部占位值；局部 `.gitignore` 已排除真实环境文件。
 
 - `DATABASE_URL` 主机名用 `postgres`，用户、数据库、密码与 `POSTGRES_*` 一致；密码中的 URL 特殊字符须百分号编码。随机十六进制密码可简化编码。
 - 邮件默认使用独立 SMTP 账户：`YOUJI_MAIL_TRANSPORT=smtp`，配置 `SMTP_HOST/PORT/SECURE/USER/PASS/FROM`。隐式 TLS 或强制 STARTTLS，不允许明文降级。也可选择 `http` 模式使用原 HTTPS 适配器；此时才配置 `YOUJI_MAIL_URL/TOKEN`。

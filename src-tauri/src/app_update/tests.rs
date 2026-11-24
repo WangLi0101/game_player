@@ -4,11 +4,11 @@ fn fixture()->(String,String,Vec<u8>){
     let value:serde_json::Value=serde_json::from_str(include_str!("fixtures/signed.json")).unwrap();
     (value["publicKey"].as_str().unwrap().into(),value["signature"].as_str().unwrap().into(),base64::engine::general_purpose::STANDARD.decode(value["payload"].as_str().unwrap()).unwrap())
 }
-fn identity(signature:String)->Identity{Identity{version:"1.1.0".into(),url:"https://github.com/Libra11/windows-game-launcher/releases/download/v1.1.0/youji_1.1.0_x64-setup.exe".into(),signature}}
+fn identity(signature:String)->Identity{Identity{version:"1.1.0".into(),url:"https://github.com/WangLi0101/game_player/releases/download/v1.1.0/youji_1.1.0_x64-setup.exe".into(),signature}}
 #[test]fn stable_versions_and_owned_release_urls_are_required(){
     let (_,signature,_)=fixture();let valid=identity(signature);valid.validate("1.0.0").unwrap();assert!(valid.validate("1.1.0").is_err());
     for version in ["1.2.0-beta.1","garbage","0.9.0"]{let mut changed=valid.clone();changed.version=version.into();assert!(changed.validate("1.0.0").is_err());}
-    for url in ["http://github.com/Libra11/windows-game-launcher/releases/download/v1.1.0/youji_1.1.0_x64-setup.exe","https://other.example/update.exe","https://github.com/Other/repo/releases/download/v1.1.0/youji_1.1.0_x64-setup.exe"]{let mut changed=valid.clone();changed.url=url.into();assert!(changed.validate("1.0.0").is_err());}
+    for url in ["http://github.com/WangLi0101/game_player/releases/download/v1.1.0/youji_1.1.0_x64-setup.exe","https://other.example/update.exe","https://github.com/Other/repo/releases/download/v1.1.0/youji_1.1.0_x64-setup.exe"]{let mut changed=valid.clone();changed.url=url.into();assert!(changed.validate("1.0.0").is_err());}
 }
 #[test]fn cache_reuse_verifies_signature_size_digest_version_and_identity(){
     let temp=tempfile::tempdir().unwrap();let (public,signature,bytes)=fixture();let expected=identity(signature);

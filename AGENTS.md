@@ -4,11 +4,11 @@
 
 1. `PROJECT-HANDOFF.md`：项目位置、最近完成的修复、实机验证结果与剩余验证。
 2. `HANDHELD-OPERATIONS.md`：掌机 SSH、文件传输、远程启动、构建、更新和卸载。
-3. `outputs/windows-game-launcher/AGENTS.md` 与该目录的 `README.md`：源码工作约定与功能说明。
+3. `README.md` 与 `XBOX-ACHIEVEMENTS.md`：功能说明和成就来源边界。
 
 ## 目录约定
 
-- 此目录是完整工作目录，实际源码在 `outputs/windows-game-launcher/`。
+- 仓库根目录同时是源码根目录。`src/` 为前端，`src-tauri/` 为桌面端 Rust 代码，`server/` 为云服务。
 - `work/windows-build/project/` 是构建副本，修改业务代码应在实际源码目录进行，再同步到构建副本。
 - `work/handheld-ssh/` 保存连接密钥；`work/diagnostics/` 中的数据库副本可能包含 Steam API Key。禁止输出密钥内容、完整设置表或把这些文件放到公开下载服务中。
 - 使用 T9 的实际路径。旧工作目录仅保留链接，不是第二份源码。

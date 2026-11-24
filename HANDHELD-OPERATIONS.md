@@ -10,7 +10,7 @@
 | SSH 用户与地址 | `lixin@192.168.10.96`，TCP 22 |
 | 认证方式 | 本地 Ed25519 私钥，无需在聊天中提供密码 |
 | 完整工作目录 | `/Volumes/T9/Projects/LibraSpace/windows-game-launcher` |
-| 实际源码 | 工作目录下的 `outputs/windows-game-launcher/` |
+| 实际源码 | Git 仓库根目录 |
 | 私钥 | 工作目录下的 `work/handheld-ssh/id_ed25519`，已核对权限为 `0600` |
 | 已信任主机记录 | 工作目录下的 `work/handheld-ssh/known_hosts` |
 | 掌机文件传输目录 | `C:/Users/lixin/Downloads/` |
@@ -154,7 +154,7 @@ Xbox 捕获附加时不要直接强杀 `XboxLocalProbe.exe`。正常退出启动
 
 ## 5. 构建 Windows 安装包
 
-主源码和构建副本分开：先修改 `outputs/windows-game-launcher/`，再同步到构建副本。不能只改 `/app` 或 `work/windows-build/project/`。
+先在仓库根目录修改主源码，再同步到容器 `/app` 或 `work/windows-build/project/` 构建副本。
 
 | 项目 | 值 |
 | --- | --- |
@@ -168,17 +168,22 @@ Xbox 捕获附加时不要直接强杀 `XboxLocalProbe.exe`。正常退出启动
 
 2026-10-01 本轮本地检查：该容器处于 running。使用稳定容器名称，不使用旧容器 ID；迁移前的旧容器已删除。
 
-用户要求打包时才执行：
+用户要求打包时才执行以下命令。容器内需安装源码 `package.json` 指定的 pnpm。
 
 ```zsh
 docker inspect --format '{{.Name}} {{.Config.Image}} {{.State.Status}}' \
   "codex-launcher-windows-t9"
 
-tar -C "$LAUNCHER_ROOT/outputs/windows-game-launcher" \
+tar -C "$LAUNCHER_ROOT" \
   --exclude=node_modules --exclude=target --exclude=dist --exclude=gen \
-  -cf - . | docker exec -i "codex-launcher-windows-t9" tar -xf - -C /app
+  --exclude='.env' --exclude='.env.*' \
+  -cf - package.json pnpm-lock.yaml tsconfig.json vite.config.js \
+  index.html tray-menu.html achievement-overlay.html public src src-tauri \
+  cloud-protocol save-archive release-notes \
+  | docker exec -i "codex-launcher-windows-t9" tar -xf - -C /app
 
-docker exec "codex-launcher-windows-t9" npm run tauri -- build \
+docker exec "codex-launcher-windows-t9" pnpm install --frozen-lockfile
+docker exec "codex-launcher-windows-t9" pnpm exec tauri build \
   --runner cargo-xwin --target x86_64-pc-windows-msvc --bundles nsis
 ```
 

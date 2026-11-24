@@ -1,6 +1,6 @@
 # 游迹
 
-个人使用的 Windows 游戏与影视资料库，基于 Tauri 2、Rust、Vite 和 SQLite。游戏支持 Steam 账号导入、本地 `.exe`、官方及本地成就；影视支持媒体目录扫描、TMDB 资料、豆瓣观影记录与播放器进度。
+个人使用的 Windows 游戏与影视资料库，基于 Tauri 2、Rust、Vite 8 和 SQLite。主窗口外框使用 React、TypeScript 和 Tailwind CSS。游戏支持 Steam 账号导入、本地 `.exe`、官方及本地成就；影视支持媒体目录扫描、TMDB 资料、豆瓣观影记录与播放器进度。
 
 ## 托盘菜单
 
@@ -10,10 +10,10 @@
 
 ## 开发交接与掌机操作
 
-- [项目交接状态](../../PROJECT-HANDOFF.md)：T9 目录、最近修复、实机验证结果与待验证事项。
-- [Windows 掌机连接与操作](../../HANDHELD-OPERATIONS.md)：SSH、SCP、远程桌面程序启动、Windows 构建、更新、备份和卸载。
+- [项目交接状态](PROJECT-HANDOFF.md)：T9 目录、最近修复、实机验证结果与待验证事项。
+- [Windows 掌机连接与操作](HANDHELD-OPERATIONS.md)：SSH、SCP、远程桌面程序启动、Windows 构建、更新、备份和卸载。
 
-新会话先读取以上文档。主源码是当前目录，`../../work/windows-build/project/` 仅为构建副本。
+在仓库根目录修改主源码。`work/windows-build/project/` 是构建副本。
 
 ## 好友动态与个人空间
 
@@ -103,33 +103,33 @@ ffprobe 读取容器、分辨率、码率、音视频轨和字幕，未知值不
 
 ## 运行
 
-Windows 开发环境需要 Rust、Microsoft C++ Build Tools、WebView2 和 Node.js。安装依赖后：
+Windows 开发环境需要 Rust、Microsoft C++ Build Tools、WebView2、Node.js 22（至少 22.12）和 `package.json` 指定的 pnpm。在源码目录运行以下命令启动开发版。
 
 ```powershell
-npm install
-npm run tauri dev
+pnpm install --frozen-lockfile
+pnpm run tauri dev
 ```
 
 打包 Windows 安装程序：
 
 ```powershell
-npm run tauri build
+pnpm run tauri build
 ```
 
 安装包输出在 `src-tauri/target/release/bundle/`。Windows 是目标平台；浏览器预览用于界面开发，播放器进度对接需运行 Windows 桌面端。
 
 ## GitHub 自动构建与 Release
 
-仓库根目录的 [Windows Release 工作流](../../.github/workflows/windows-build.yml) 在版本配置变更推送或合并到 `main` 时，比较此次推送前后的应用版本。版本号变化并通过一致性校验后，才使用 GitHub 托管的 Windows 环境构建 x64 NSIS 安装包。版本号不变时跳过构建；PR、功能分支和单独推送标签不会触发发布。
+[Windows Release 工作流](.github/workflows/windows-build.yml) 在版本配置变更推送或合并到 `main` 时，比较此次推送前后的应用版本。版本号变化并通过一致性校验后，才使用 GitHub 托管的 Windows 环境构建 x64 NSIS 安装包。版本号不变时跳过构建；PR、功能分支和单独推送标签不会触发发布。
 
 - 构建成功后自动创建 `v版本号` 标签并公开发布 Release，上传 `.exe`、更新签名和 `latest.json`，使用对应版本的中文发布说明。无需手动推送标签或确认草稿；包含 `-` 的版本标签标记为预发布。
 - 上传前将安装包文件名统一为 `youji_版本_x64-setup.exe`，避免 GitHub 移除中文文件名中的应用名称；应用名称仍为“游迹”。
 - 同时上传 `youji-windows-x64` Actions 产物，保留 14 天，可从工作流运行页面下载。
 - 构建任务只需读取仓库；Release 任务使用 GitHub 自动提供的 `GITHUB_TOKEN` 写权限，无需额外配置个人 Token。
 
-发布前统一 `package.json`、`package-lock.json`、`src-tauri/Cargo.toml`、`src-tauri/Cargo.lock` 和 `src-tauri/tauri.conf.json` 的版本，再提交并合入 `main`。例如将版本从 `0.2.2` 升到 `0.2.3`，合入后会自动构建并创建 `v0.2.3` Release。
+发布前统一 `package.json`、`src-tauri/Cargo.toml`、`src-tauri/Cargo.lock` 和 `src-tauri/tauri.conf.json` 的版本，再提交并合入 `main`。例如将版本从 `0.2.2` 升到 `0.2.3`，合入后会自动构建并创建 `v0.2.3` Release。
 
-任一版本配置不一致时会在构建前失败。如果同名版本标签已指向其他提交，必须使用新版本号，工作流不会移动已有标签。构建使用 `npm ci` 和 Cargo `--locked`，依赖锁文件必须已提交。`src-tauri/resources/XboxLocalProbe.exe` 等打包资源也需要在仓库中；工作流只上传生成的安装包。
+任一版本配置不一致时会在构建前失败。如果同名版本标签已指向其他提交，必须使用新版本号，工作流不会移动已有标签。构建使用 `pnpm install --frozen-lockfile` 和 Cargo `--locked`，依赖锁文件必须已提交。`src-tauri/resources/XboxLocalProbe.exe` 等打包资源也需要在仓库中；工作流只上传生成的安装包。
 
 Release 说明来自 `release-notes/<版本号>.md`。发布前必须配置更新签名 Secrets；工作流先对安装包和签名执行密码学及版本校验，再上传草稿，产物完整后公开发布。同一标签的草稿可重试，正文以仓库中的说明为准；已发布的 Release 会跳过，不会覆盖。构建失败或取消后，可在原 Actions 运行页面重新运行；版本判断仍使用原推送前后的提交。标签创建、构建与发布由同一个工作流完成，不依赖自动创建标签再次触发 Actions，也不需要额外配置个人 Token。
 
@@ -165,12 +165,12 @@ Steam 成就定义优先通过官方 `IPlayerService/GetGameAchievements/v1` 获
 ## 验证
 
 ```powershell
-npm test
-npm run test:ui
-npm run build
+pnpm test
+pnpm run test:ui
+pnpm run build
 ```
 
-影视局部刷新的浏览器回归位于 `test/media-render.browser.cjs`。有 Playwright 和 Microsoft Edge 时，先运行 `npm run dev -- --port 5178`，再运行 `node test/media-render.browser.cjs`；可用 `YOUJI_PLAYWRIGHT_PATH` 指向现有 Playwright 包、`YOUJI_TEST_URL` 指定本地预览地址。测试只使用示例资料，覆盖后台更新、卡片／图片节点保留、详情读取次数、切集与同目录刷新，不读取正式库或启动播放器。
+影视局部刷新的浏览器回归位于 `test/media-render.browser.cjs`。有 Playwright 和 Microsoft Edge 时，先运行 `pnpm run dev --port 5178`，再运行 `node test/media-render.browser.cjs`；可用 `YOUJI_PLAYWRIGHT_PATH` 指向现有 Playwright 包、`YOUJI_TEST_URL` 指定本地预览地址。测试只使用示例资料，覆盖后台更新、卡片／图片节点保留、详情读取次数、切集与同目录刷新，不读取正式库或启动播放器。
 
 Rust 测试覆盖 Steam 游戏库响应解析、真实格式的定义与解锁样例、启动时历史导入、新成就通知去重、路径迁移、缺失记录与重启后缓存保留。
 
@@ -178,7 +178,7 @@ Rust 测试覆盖 Steam 游戏库响应解析、真实格式的定义与解锁�
 
 重做游戏库、游戏详情、成就列表和设置弹窗，使用中文深色界面。新增封面／列表切换、名称排序与成就状态筛选，检测详情可展开查看。界面适配窄窗口，后台仅在数据变化时重绘。
 
-`npm run dev` 在普通浏览器中使用明确标注的示例数据预览设计，启动游戏、导入和保存等操作需在 Tauri 桌面应用中执行。正式构建不会启用示例数据。
+`pnpm run dev` 在普通浏览器中使用明确标注的示例数据预览设计，启动游戏、导入和保存等操作需在 Tauri 桌面应用中执行。正式构建不会启用示例数据。
 
 普通与大屏游戏库分别保留最后一份封面节点，经过详情、统计或设置再返回时，在新图片创建前复用已加载或加载中的节点，不重新设置其 `src`。图片与 UI 控件分开复用，收藏、启动状态及筛选使用当前数据；实际封面地址变化时才建立新的图片请求。返回游戏库不重播封面入场淡入，滚动位置恢复逻辑保持不变。
 
@@ -207,7 +207,7 @@ Steam、Epic 和本地关联游戏均使用上述缓存。Epic 导入时从官�
 - 支持 Gamepad API 标准映射的手柄，掌机需要切换到游戏手柄模式。确认键只在按下瞬间触发；启动器失去焦点时停止处理手柄输入，从游戏返回后需松开按键再操作。
 - 使用当前亮色／暗色主题，可通过顶部「切换主题」按钮即时切换。游戏资料和成就复用现有数据。
 
-`npm run test:ui` 验证方向导航、摇杆死区与按键重复行为。Windows 全屏和真实手柄操作需在目标掌机上实测。
+`pnpm run test:ui` 验证方向导航、摇杆死区与按键重复行为。Windows 全屏和真实手柄操作需在目标掌机上实测。
 
 ## 收藏、最近游玩与运行检测
 
@@ -256,7 +256,7 @@ Epic 保留「在 Epic 中打开」，旁边另加「安装游戏」，以已导
 
 弹层采用炭黑卡片、浅金绿色奖杯徽章与解锁标记，成就图片统一显示在左侧；没有图片或加载失败时显示奖杯。成就名称最多两行，游戏名称单行省略。仅徽章光泽使用动画，通知内容收到事件后立即可见，并遵循减少动态效果偏好。
 
-运行 `npm run dev` 后，访问 `http://127.0.0.1:1420/achievement-overlay.html` 可预览默认图标、示例图片、长名称、图片失败、连续通知及深浅背景。该页面使用明确标注的示例数据，预览模块不进入生产构建。
+运行 `pnpm run dev` 后，访问 `http://127.0.0.1:1420/achievement-overlay.html` 可预览默认图标、示例图片、长名称、图片失败、连续通知及深浅背景。该页面使用明确标注的示例数据，预览模块不进入生产构建。
 
 在设置中可以开关弹层、选择四角位置、3–10 秒停留时间，以及“星光”“轻响”或静音。选项即时保存，位置改变也应用到正在显示的卡片。“测试通知”立即预览；“5 秒后测试”留出切回游戏的时间。提示音使用内嵌音频，不依赖浏览器自动播放权限。
 

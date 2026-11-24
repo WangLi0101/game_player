@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 const publishTest=process.platform==='win32'?test.skip:test;
-const script=fileURLToPath(new URL('../../../.github/scripts/publish-update-release.sh',import.meta.url));
+const script=fileURLToPath(new URL('../.github/scripts/publish-update-release.sh',import.meta.url));
 function publish({draft='missing',uploadFail=false,stable='v1.0.0',complete=true,tag='v1.1.0'}={}){
   const root=mkdtempSync(join(tmpdir(),'youji-publish-'));
   try{
@@ -23,7 +23,7 @@ if [[ "$1 $2" == "release upload" && "$FAKE_FAIL_UPLOAD" == "yes" ]]; then exit 
 if [[ "$1" == "api" ]]; then echo "$FAKE_STABLE"; fi
 exit 0
 `,{mode:0o755});
-    const result=spawnSync('bash',[script,release],{cwd:root,encoding:'utf8',env:{...process.env,PATH:`${bin}:${process.env.PATH}`,RELEASE_TAG:tag,RELEASE_SHA:'a'.repeat(40),GITHUB_REPOSITORY:'Libra11/windows-game-launcher',FAKE_LOG:log,FAKE_DRAFT:draft,FAKE_FAIL_UPLOAD:uploadFail?'yes':'no',FAKE_STABLE:stable}});
+    const result=spawnSync('bash',[script,release],{cwd:root,encoding:'utf8',env:{...process.env,PATH:`${bin}:${process.env.PATH}`,RELEASE_TAG:tag,RELEASE_SHA:'a'.repeat(40),GITHUB_REPOSITORY:'WangLi0101/game_player',FAKE_LOG:log,FAKE_DRAFT:draft,FAKE_FAIL_UPLOAD:uploadFail?'yes':'no',FAKE_STABLE:stable}});
     let calls='';try{calls=readFileSync(log,'utf8');}catch{}
     return {status:result.status,calls};
   }finally{rmSync(root,{recursive:true,force:true});}
@@ -37,6 +37,7 @@ publishTest('公开版本不覆盖，缺失签名在调用发布 API 前拒绝',
 });
 publishTest('上传完整后才公开，较旧正式版本不提升最新入口',()=>{
   const good=publish();assert.equal(good.status,0);assert.ok(good.calls.indexOf('release upload')<good.calls.indexOf('release edit'));assert.match(good.calls,/release edit.*--draft=false --latest /);
+  assert.match(good.calls,/release upload.* --repo WangLi0101\/game_player /);
   const old=publish({stable:'v1.2.0'});assert.equal(old.status,0);assert.match(old.calls,/release edit.*--latest=false/);
 });
 

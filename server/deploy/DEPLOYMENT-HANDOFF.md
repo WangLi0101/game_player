@@ -16,7 +16,7 @@
 ## 目录与连接
 
 本机工作根目录：`/Volumes/T9/Projects/LibraSpace/windows-game-launcher`。
-实际源码：`outputs/windows-game-launcher/`。不要编辑 `work/windows-build/project/` 构建副本。
+在仓库根目录编辑源码。`work/windows-build/project/` 是构建副本。
 
 服务器：
 
@@ -141,7 +141,7 @@ python3 "work/cloud-deploy/oss_control.py"                   # 桶级安全设�
 
 ## 凭据位置（不要打印内容）
 
-- 本机 `outputs/windows-game-launcher/server/deploy/.env`：完整部署配置，0600、Git 忽略。
+- 本机 `server/deploy/.env`：完整部署配置，0600、Git 忽略。
 - 本机同目录 `.env.smtp`：独立 SMTP 密码，0600、Git 忽略。
 - 服务器 `/opt/apps/libra-diary/.env`：已安全传输的相同配置，0600。
 - 本机 `work/cloud-deploy/deploy_key`：专用 SSH 私钥。
@@ -180,7 +180,7 @@ python3 "work/cloud-deploy/oss_control.py"                   # 桶级安全设�
 docker build --platform linux/amd64 \
   --build-context "cargo-registry=$HOME/.cargo/registry" \
   -f "work/cloud-deploy/Dockerfile.cached" \
-  -t libra-diary:local "outputs/windows-game-launcher"
+  -t libra-diary:local .
 ```
 
 只挂载 registry 缓存，不挂载整个 .cargo（避免带入认证配置）。`oss_control.py` 与 `oss_list.py` 读取 .env 生成 V4 请求，只打印安全字段；不要把安装 oss2 当作部署前置条件。
