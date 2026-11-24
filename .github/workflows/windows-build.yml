@@ -4,11 +4,11 @@ on:
   push:
     branches: [main]
     paths:
-      - package.json
-      - pnpm-lock.yaml
-      - src-tauri/Cargo.toml
-      - src-tauri/Cargo.lock
-      - src-tauri/tauri.conf.json
+      - outputs/windows-game-launcher/package.json
+      - outputs/windows-game-launcher/package-lock.json
+      - outputs/windows-game-launcher/src-tauri/Cargo.toml
+      - outputs/windows-game-launcher/src-tauri/Cargo.lock
+      - outputs/windows-game-launcher/src-tauri/tauri.conf.json
 
 permissions:
   contents: read
@@ -46,6 +46,7 @@ jobs:
     defaults:
       run:
         shell: pwsh
+        working-directory: outputs/windows-game-launcher
     steps:
       - uses: actions/checkout@v7
         with:
@@ -55,7 +56,7 @@ jobs:
       - name: 校验发布版本
         env:
           RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
-        run: ./.github/scripts/check-release-version.ps1 -Tag $env:RELEASE_TAG
+        run: ../../.github/scripts/check-release-version.ps1 -Tag $env:RELEASE_TAG
 
       - name: 检查签名配置和中文发布说明
         env:
@@ -65,17 +66,15 @@ jobs:
           if ([string]::IsNullOrWhiteSpace($env:TAURI_SIGNING_PRIVATE_KEY) -or [string]::IsNullOrWhiteSpace($env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD)) {
             throw '请先配置更新签名私钥和密码的 GitHub Actions Secrets。'
           }
-          . ./.github/scripts/prepare-update-release.ps1
+          . ../../.github/scripts/prepare-update-release.ps1
           $version = (Get-Content -LiteralPath 'src-tauri/tauri.conf.json' -Raw | ConvertFrom-Json).version
           $null = Read-ReleaseNotes '.' $version
-
-      - uses: pnpm/action-setup@v6
 
       - uses: actions/setup-node@v6
         with:
           node-version: "22"
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+          cache: npm
+          cache-dependency-path: outputs/windows-game-launcher/package-lock.json
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -83,20 +82,20 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces: src-tauri -> target
+          workspaces: outputs/windows-game-launcher/src-tauri -> target
 
       - name: 安装前端依赖
-        run: pnpm install --frozen-lockfile
+        run: npm ci
 
       - name: 构建 Windows x64 安装包
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: pnpm exec tauri build --target x86_64-pc-windows-msvc --bundles nsis --ci -- --locked
+        run: npm run tauri build -- --target x86_64-pc-windows-msvc --bundles nsis --ci -- --locked
 
       - name: 准备签名更新包和更新清单
         run: |
-          ./.github/scripts/prepare-update-release.ps1 -ProjectDirectory '.' `
+          ../../.github/scripts/prepare-update-release.ps1 -ProjectDirectory '.' `
             -BundleDirectory 'src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis' `
             -OutputDirectory 'update-release' -Repository '${{ github.repository }}'
 
@@ -104,7 +103,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: youji-windows-x64
-          path: update-release/*
+          path: outputs/windows-game-launcher/update-release/*
           if-no-files-found: error
           retention-days: 14
 

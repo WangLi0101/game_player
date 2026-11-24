@@ -1,0 +1,214 @@
+.actions {
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.collection-toolbar {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:30px 0 20px;
+}
+/* 操作胶囊向 banner 下方延伸 22px，筛选栏再留出 32px 间隔。 */
+#app .library-feature + .collection-toolbar { margin-top:54px; }
+.collection-title {
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+.collection-title h2,.achievement-toolbar h2 {
+  font-size:16px;
+  font-weight:600;
+  letter-spacing:.5px;
+}
+.count-pill {
+  font-size:10px;
+  color:var(--text-secondary);
+  background:var(--panel);
+  border:1px solid var(--line);
+  padding:3px 7px;
+  border-radius:5px;
+}
+.collection-controls {
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:nowrap;
+  min-width:0;
+}
+.collection-controls .library-filter-controls {
+  flex-wrap:nowrap;
+  gap:10px;
+  min-width:0;
+}
+.collection-controls .installed-filter {
+  height:36px;
+  flex-shrink:0;
+  white-space:nowrap;
+  padding:8px 11px;
+}
+.collection-controls .custom-select.sort-select {
+  width:168px;
+  flex:0 0 168px;
+}
+.collection-controls .custom-select-trigger {
+  height:36px;
+  min-height:36px;
+}
+.sort-select {
+  border:0;
+  background:transparent;
+  color:var(--muted);
+  font-size:10px;
+  cursor:pointer;
+  padding:8px;
+}
+.view-switch {
+  display:flex;
+  gap:2px;
+  padding:3px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:7px;
+}
+.collection-controls .view-switch { flex-shrink:0; height:36px; padding:2px; }
+.collection-controls .view-switch .icon-button { width:30px; height:30px; }
+.icon-button {
+  display:grid;
+  place-items:center;
+  width:32px;
+  height:32px;
+  background:transparent;
+  color:var(--muted);
+  border-radius:5px;
+  padding:0;
+}
+.icon-button .icon {
+  width:16px;
+  height:16px;
+}
+.icon-button:hover,.icon-button.active {
+  color:var(--text-secondary);
+  background:var(--surface-hover);
+}
+.game-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(155px,1fr));
+  gap:26px 20px;
+}
+.game-card {
+  min-width:0;
+  text-align:left;
+  background:none;
+  padding:0;
+  display:block;
+  border-radius:10px;
+}
+.game-art {
+  aspect-ratio:2/3;
+  width:100%;
+  position:relative;
+  background:linear-gradient(145deg,var(--placeholder-start),var(--placeholder-end));
+  border:1px solid var(--line);
+  border-radius:10px;
+  overflow:hidden;
+  transition:transform var(--art-hover-duration) var(--art-hover-ease),box-shadow 380ms ease,border-color 280ms ease;
+}
+.game-art>img,.detail-poster>img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  position:absolute;
+  inset:0;
+}
+.game-card:hover .game-art {
+  transform:translateY(-2px);
+  border-color:var(--line);
+  box-shadow:0 12px 24px var(--shadow);
+}
+.card-open {
+  position:absolute;
+  right:10px;
+  bottom:10px;
+  display:grid;
+  place-items:center;
+  background:var(--accent);
+  color:var(--accent-text);
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  opacity:0;
+  transform:translateY(6px);
+  transition:.2s;
+}
+.game-card:hover .card-open,.game-card:focus-visible .card-open {
+  opacity:1;
+  transform:none;
+}
+.card-open .icon {
+  width:17px;
+  height:17px;
+}
+.game-copy {
+  padding:12px 2px 0;
+}
+.game-copy h3 {
+  font-size:12px;
+  font-weight:550;
+  color:var(--text);
+  line-height:1.5;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.game-source {
+  display:flex;
+  gap:5px;
+  align-items:center;
+  font-size:9px;
+  color:var(--muted);
+  margin-top:5px;
+}
+.game-source .icon {
+  width:12px;
+  height:12px;
+}
+.game-list {
+  display:grid;
+  gap:10px;
+}
+.game-list .game-card {
+  display:flex;
+  align-items:center;
+  background:var(--panel);
+  border:1px solid var(--line);
+  padding:10px;
+  gap:18px;
+}
+.game-list .game-art {
+  width:58px;
+  flex-shrink:0;
+  border-radius:5px;
+}
+.game-list .game-copy {
+  padding:0;
+}
+.game-list .game-copy h3 {
+  font-size:14px;
+}
+.game-list .card-open {
+  display:none;
+}
+.page-footer {
+  display:flex;
+  justify-content:space-between;
+  border-top:1px solid var(--line);
+  padding-top:20px;
+  margin-top:40px;
+  color:var(--muted);
+  font-size:9px;
+  letter-spacing:1px;
+}

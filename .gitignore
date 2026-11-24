@@ -3,10 +3,11 @@ work/
 node_modules/
 dist/
 target/
-/src-tauri/gen/
-/*-preview.png
-/*-preview.jpg
-/features-guide.png
+outputs/*.exe
+outputs/*.zip
+outputs/windows-game-launcher/*-preview.png
+outputs/windows-game-launcher/*-preview.jpg
+outputs/windows-game-launcher/features-guide.png
 *.sqlite
 *.sqlite-*
 *.db
